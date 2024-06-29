@@ -1,4 +1,4 @@
-; Build with: nasm -f elf64 -g function.asm && ld function.o -static -o function
+; Build with: nasm -f elf64 -g hello-world-example.asm && ld hello-world-example.o -static -o hello-world-example
 ; this is a simple example of basic input and output of a string in x86 on linux 
 BITS 64   
 ;
@@ -10,27 +10,22 @@ STDOUT     equ     1          ; standard output
 
 ; data section for initialized data
 section .data
-    number dd 5
+    ; simple string for user prompt
+    prompt dd "Hello, World!", 0
+    promptLen equ $ - prompt
 
+; bss section is for uninitiated data 
 section .text
     global _start
     
 _start:
-
-    mov rdi, number
-    call function
-
+    
+    mov eax, SYS_WRITE                   ; std write
+    mov edi, STDOUT                      ; file discriptor
+    mov esi, prompt                      ; string to print
+    mov edx, promptLen                   ; string length
+    syscall
+    
     mov eax, SYS_EXIT                    ; standard linux exit sys call      
     xor edi, edi                         ; zero out edi
     syscall
-
-function:
-    push rbp                             ; function prolog
-    mov rbp, rsp
-
-    mov rax, rdi
-    add rax, rax
-
-    mov rsp, rbp                         ; function epilog
-    pop rbp
-    ret
